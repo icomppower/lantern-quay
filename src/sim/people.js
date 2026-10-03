@@ -170,8 +170,9 @@ export class Watchman {
     if (this.wait > 0) {
       this.wait -= dt;
       this.scan += dt;
-      const face = this.dir > 0 ? this.base + Math.PI : this.base; // just arrived: looking back the way he came
-      this.heading = face + Math.sin(this.scan * 0.9) * 1.1;
+      // pauses to watch the main canal (z = -6), sweeping slowly across it
+      const face = this.p[2] > -6 ? Math.PI : 0;
+      this.heading = face + Math.sin(this.scan * 0.7) * 1.4;
       if (this.wait <= 0) this.dir *= -1;
     } else {
       const dx = goal[0] - this.p[0], dz = goal[2] - this.p[2];
@@ -179,7 +180,7 @@ export class Watchman {
       const s = Math.min(d, 1.1 * dt);
       this.p[0] += (dx / d) * s; this.p[2] += (dz / d) * s; this.walkPhase += s * 2.2;
       this.heading = Math.atan2(dx, dz);
-      if (d - s < 0.05) { this.wait = 4.5; this.scan = 0; }
+      if (d - s < 0.05) { this.wait = 7; this.scan = 0; }
     }
     // vision
     const e = this.eye();
@@ -201,4 +202,4 @@ export class Watchman {
   }
 }
 
-export const DETECT = { range: 48, fov: (100 * Math.PI) / 180, rate: 0.85, crouchMul: 0.4, moveMul: 1.4, decay: 0.22 };
+export const DETECT = { range: 60, fov: (100 * Math.PI) / 180, rate: 1.3, crouchMul: 0.35, moveMul: 1.4, decay: 0.12 };

@@ -1,0 +1,68 @@
+{
+ "contracts": {
+  "1": {
+   "name": "The Toll Collector",
+   "result": {
+    "ok": true,
+    "reason": "dove",
+    "time": 19.8,
+    "shots": 1,
+    "masked": 1,
+    "alerted": false
+   },
+   "shots": [
+    {
+     "at_s": 17.3,
+     "result": "target",
+     "masked": 1,
+     "range": 61.7,
+     "dropMil": 0.1,
+     "driftMil": -0.21,
+     "crossWind": -0.71
+    }
+   ],
+   "dive": "dove",
+   "detect_peak": 0,
+   "pass": true
+  },
+  "2": {
+   "name": "The Bookkeeper",
+   "result": {
+    "ok": true,
+    "reason": "dove",
+    "time": 23.6,
+    "shots": 1,
+    "masked": 1,
+    "alerted": false
+   },
+   "shots": [
+    {
+     "at_s": 21.1,
+     "result": "target",
+     "masked": 1,
+     "range": 72.8,
+     "dropMil": 0.76,
+     "driftMil": -1.37,
+     "crossWind": -3.81
+    }
+   ],
+   "dive": "dove",
+   "detect_peak": 0,
+   "pass": true
+  }
+ },
+ "civilian": {
+  "found": true,
+  "hit": "civilian",
+  "result": {
+   "ok": false,
+   "reason": "civilian",
+   "time": 0.9,
+   "shots": 1,
+   "masked": 0,
+   "alerted": true
+  },
+  "pass": true
+ },
+ "pass": true
+}

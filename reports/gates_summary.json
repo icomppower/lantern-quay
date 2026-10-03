@@ -1,1 +1,18 @@
-{}
+{
+ "v1": {
+  "pass": true,
+  "secs": 4
+ },
+ "v2": {
+  "pass": true,
+  "secs": 1
+ },
+ "v3": {
+  "pass": true,
+  "secs": 1
+ },
+ "v3_B": {
+  "pass": true,
+  "secs": 1
+ }
+}
