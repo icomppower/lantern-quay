@@ -1,0 +1,73 @@
+{
+ "reach": {
+  "A": {
+   "walk": {
+    "ok": true,
+    "t": 22.8,
+    "metres": 113.9
+   },
+   "climb": {
+    "ok": true,
+    "roof": 16,
+    "y": 16,
+    "to_spot": {
+     "ok": true,
+     "t": 0.8,
+     "metres": 4.2
+    }
+   },
+   "pass": true
+  },
+  "B": {
+   "walk": {
+    "ok": true,
+    "t": 21.5,
+    "metres": 107.4
+   },
+   "climb": {
+    "ok": true,
+    "roof": 16,
+    "y": 16,
+    "to_spot": {
+     "ok": true,
+     "t": 0.7,
+     "metres": 3.4
+    }
+   },
+   "pass": true
+  },
+  "tower": {
+   "walk": {
+    "ok": true,
+    "t": 13.4,
+    "metres": 67.2
+   },
+   "climb": {
+    "ok": true,
+    "roof": 16,
+    "y": 16,
+    "to_spot": {
+     "ok": true,
+     "t": 0.4,
+     "metres": 2
+    }
+   },
+   "pass": true
+  }
+ },
+ "sightlines": {
+  "1": {
+   "loop_s": 32,
+   "A_s_per_loop": 32,
+   "B_s_per_loop": 31.4,
+   "pass": true
+  },
+  "2": {
+   "loop_s": 33,
+   "A_s_per_loop": 8.8,
+   "B_s_per_loop": 8.6,
+   "pass": true
+  }
+ },
+ "pass": true
+}

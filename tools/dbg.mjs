@@ -1,0 +1,12 @@
+import { chromium } from "playwright";
+import { spawn } from "node:child_process";
+const srv = spawn("node", ["tools/serve.mjs", "8791"], { stdio: "ignore", cwd: process.cwd() });
+await new Promise((r) => setTimeout(r, 500));
+const b = await chromium.launch({ args: ["--use-angle=metal"] });
+const p = await b.newPage();
+p.on("pageerror", (e) => console.log("ERR", e.message));
+await p.goto("http://localhost:8791/?test=dbg&quiet");
+await p.waitForFunction(() => window.__lq, null, { timeout: 120000 });
+const r = await p.evaluate(process.argv[2]);
+console.log(JSON.stringify(r, null, 1));
+await b.close(); srv.kill();

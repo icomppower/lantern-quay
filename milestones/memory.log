@@ -1,0 +1,3 @@
+2026-10-03 15:54:28  LQ1            peak_footprint=0.38GB max_rss=0.64GB wall=8.42s args=--stage 5 --out milestones/LQ1
+2026-10-03 15:58:28  LQ1            peak_footprint=0.38GB max_rss=0.65GB wall=7.28s args=--stage 5 --out milestones/LQ1
+2026-10-03 16:08:47  LQ1            peak_footprint=0.38GB max_rss=0.65GB wall=7.78s args=--stage 5 --out milestones/LQ1

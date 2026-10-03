@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lantern Quay 燈港</title>
+<style>
+  :root { --ink: #f6ead8; --dim: #cdbb9f; --panel: rgba(26, 20, 15, 0.78); --accent: #3fb3b0; --warn: #e2a33a; --bad: #d9473a; --good: #6cc48a; }
+  html, body { margin: 0; height: 100%; background: #1b1510; overflow: hidden; font: 14px/1.45 -apple-system, "PingFang TC", system-ui, sans-serif; color: var(--ink); }
+  canvas#gl { display: block; }
+  .screen { position: fixed; inset: 0; display: none; place-items: center; z-index: 10; }
+  .screen.on { display: grid; }
+  .card { background: var(--panel); border: 1px solid rgba(246, 234, 216, 0.14); border-radius: 14px; padding: 22px 26px; max-width: min(560px, calc(100vw - 32px)); box-sizing: border-box; backdrop-filter: blur(8px); }
+  h1 { font: 600 44px/1.05 Georgia, "Songti TC", serif; margin: 0 0 4px; letter-spacing: 0.01em; }
+  h2 { font: 600 24px/1.2 Georgia, "Songti TC", serif; margin: 0 0 8px; }
+  .sub { color: var(--dim); margin: 0 0 16px; }
+  button { font: inherit; color: var(--ink); background: rgba(63, 179, 176, 0.22); border: 1px solid var(--accent); border-radius: 9px; padding: 9px 16px; cursor: pointer; margin: 4px 6px 0 0; }
+  button:hover { background: rgba(63, 179, 176, 0.42); }
+  button.ghost { border-color: rgba(246, 234, 216, 0.3); background: transparent; }
+  button:disabled { opacity: 0.4; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .contract { flex: 1 1 220px; border: 1px solid rgba(246, 234, 216, 0.18); border-radius: 10px; padding: 12px 14px; cursor: pointer; }
+  .contract:hover { border-color: var(--accent); }
+  .contract .n { color: var(--warn); font-size: 12px; letter-spacing: 0.08em; }
+  .contract .t { font: 600 19px Georgia, "Songti TC", serif; }
+  .contract .done { color: var(--good); font-size: 12px; }
+  table.clues { border-collapse: collapse; margin: 10px 0 12px; width: 100%; }
+  table.clues td { padding: 3px 8px 3px 0; vertical-align: top; }
+  table.clues td:first-child { color: var(--dim); white-space: nowrap; }
+  .portrait { width: 84px; height: 104px; float: right; margin: 0 0 8px 12px; border-radius: 8px; background: #2a221a; }
+  .keys { color: var(--dim); font-size: 12.5px; margin-top: 12px; }
+  kbd { font: 11px ui-monospace, monospace; border: 1px solid rgba(246, 234, 216, 0.3); border-radius: 4px; padding: 0 4px; }
+  #loading .bar { width: min(320px, 70vw); height: 4px; background: #3a2f25; border-radius: 2px; overflow: hidden; margin-top: 10px; }
+  #loading .bar > div { height: 100%; width: 0; background: var(--accent); }
+  #hud { position: fixed; inset: 0; pointer-events: none; display: none; z-index: 5; }
+  #hud.on { display: block; }
+  .chip { position: absolute; background: var(--panel); border-radius: 9px; padding: 7px 11px; font-size: 13px; }
+  #obj { top: 12px; left: 12px; max-width: min(380px, calc(100vw - 24px)); }
+  #obj .t { font-weight: 600; }
+  #stats { top: 12px; right: 12px; text-align: right; min-width: 150px; }
+  #det { bottom: 14px; left: 50%; transform: translateX(-50%); width: min(320px, calc(100vw - 32px)); box-sizing: border-box; }
+  #det .meter { height: 7px; background: #3a2f25; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+  #det .meter > div { height: 100%; width: 0; background: var(--warn); }
+  #prompt { bottom: 70px; left: 50%; transform: translateX(-50%); display: none; white-space: nowrap; }
+  #cross { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255, 245, 225, 0.85); box-shadow: 0 0 2px #000; }
+  #scope { position: fixed; inset: 0; pointer-events: none; display: none; z-index: 4; }
+  #windArrow { display: inline-block; transition: transform 0.1s; }
+  #toast { position: fixed; top: 30%; left: 50%; transform: translateX(-50%); font: 600 22px Georgia, "Songti TC", serif; text-shadow: 0 1px 6px #000; pointer-events: none; opacity: 0; transition: opacity 0.4s; z-index: 6; text-align: center; }
+  #touch { position: fixed; inset: 0; z-index: 7; pointer-events: none; display: none; }
+  @media (max-width: 520px) { h1 { font-size: 34px; } .chip { font-size: 12px; } }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="scope"></canvas>
+<div id="hud">
+  <div id="obj" class="chip"><div class="t" id="objT"></div><div id="objS"></div></div>
+  <div id="stats" class="chip">
+    <div>彈 Rounds <b id="ammo">5</b> <span id="bolt"></span></div>
+    <div>風 Wind <b id="wind">0</b> m/s <span id="windArrow">↑</span></div>
+    <div>鐘 Bell <b id="bell">–</b></div>
+    <div id="zoomRow" style="display:none">倍 Zoom <b id="zoom">4×</b> · <span id="range">– m</span></div>
+    <div id="breathRow" style="display:none">息 Breath <b id="breath">100%</b></div>
+  </div>
+  <div id="det" class="chip">察覺 Detection <span id="detTxt"></span><div class="meter"><div id="detBar"></div></div></div>
+  <div id="prompt" class="chip"></div>
+  <div id="cross"></div>
+</div>
+<div id="toast"></div>
+
+<div id="loading" class="screen on"><div class="card" style="text-align:center"><h2>燈港 Lantern Quay</h2><div class="sub" id="loadTxt">Loading the city…</div><div class="bar"><div id="loadBar"></div></div></div></div>
+
+<div id="title" class="screen">
+  <div class="card">
+    <h1>燈港</h1>
+    <h2 style="font-weight:400">Lantern Quay</h2>
+    <p class="sub">A rooftop marksman against the Iron Sail syndicate 鐵帆會. Climb to a perch, find the mark in the crowd, fire while the bell tower rings, then dive into the canal. <i>v1 sample.</i></p>
+    <button id="bPlay">開始 Play</button>
+    <div class="keys"><kbd>WASD</kbd> move · <kbd>Shift</kbd> run / hold breath · <kbd>C</kbd> crouch · <kbd>Right-click</kbd> or <kbd>Z</kbd> scope · <kbd>Q</kbd> 4×/10× · <kbd>Click</kbd> fire · <kbd>E</kbd> ladder · <kbd>F</kbd> dive</div>
+  </div>
+</div>
+
+<div id="board" class="screen">
+  <div class="card" style="max-width:min(620px, calc(100vw - 32px))">
+    <h2>委託 Contracts</h2>
+    <p class="sub">Civilians are never targets: hitting one fails the contract. 誤傷平民即任務失敗。</p>
+    <div class="row" id="contractList"></div>
+  </div>
+</div>
+
+<div id="dossier" class="screen">
+  <div class="card">
+    <canvas class="portrait" id="portrait" width="84" height="104"></canvas>
+    <div class="n" style="color:var(--warn);font-size:12px;letter-spacing:.08em" id="dN"></div>
+    <h2 id="dT"></h2>
+    <p class="sub" id="dB"></p>
+    <table class="clues" id="dC"></table>
+    <div class="sub" style="font-size:12.5px" id="dTips"></div>
+    <button id="bGo">出發 Begin</button><button class="ghost" id="bBack">返回 Back</button>
+  </div>
+</div>
+
+<div id="result" class="screen">
+  <div class="card" style="text-align:center">
+    <h2 id="rT"></h2>
+    <p class="sub" id="rS"></p>
+    <button id="bRetry">重來 Restart</button><button class="ghost" id="bBoard">委託 Contracts</button>
+  </div>
+</div>
+
+<div id="pause" class="screen">
+  <div class="card" style="text-align:center">
+    <h2>暫停 Paused</h2>
+    <button id="bResume">繼續 Resume</button><button class="ghost" id="bRestart">重來 Restart</button><button class="ghost" id="bQuit">委託 Contracts</button>
+  </div>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
