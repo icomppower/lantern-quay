@@ -15,7 +15,8 @@ export function startTest(api, params) {
     pre.style.cssText = "position:fixed;top:8px;right:8px;z-index:99;max-width:46vw;max-height:90vh;overflow:auto;background:#000c;color:#fff;font:11px monospace;padding:8px;white-space:pre-wrap";
     pre.textContent = JSON.stringify(data, null, 1);
     if (!params.has("quiet")) document.body.appendChild(pre);
-    fetch("/report?name=" + name, { method: "POST", body: JSON.stringify(data) }).catch(() => {});
+    const base = params.get("report") || "";
+    fetch(base + "/report?name=" + name, { method: "POST", body: JSON.stringify(data), mode: base ? "no-cors" : "cors" }).catch(() => {});
   };
   const run = { v1, v2, v3, bench, shot }[kind];
   run(api, params, out).catch((e) => out("error", { error: String(e), stack: e.stack }));
