@@ -152,7 +152,7 @@ async function v2(api, params, out) {
   toPerch(game, lq, "A");
   const e = game.eye();
   // targets floating over the main canal west of the perch, at exact slant ranges
-  const dir = [-0.985, -0.135, 0.06];
+  const dir = [-0.99, -0.06, 0.06];
   const dl = Math.hypot(...dir);
   for (const [R, noHold] of [[60, false], [120, false], [120, true]]) {
     const c = [e[0] + (dir[0] / dl) * R, e[1] + (dir[1] / dl) * R, e[2] + (dir[2] / dl) * R];
@@ -160,6 +160,7 @@ async function v2(api, params, out) {
     game.testTargets = [{ c, r: 0.25 }];
     game.player.rounds = 5;
     game.player.bolt = 0;
+    game.bellT = 15; // keep the shots masked so the crowd and target stay put
     const s = await shootAt(game, () => c, { noHoldover: noHold });
     const miss = s.impact ? +Math.hypot(s.impact[0] - c[0], s.impact[1] - c[1], s.impact[2] - c[2]).toFixed(3) : null;
     res.shots.push({ range: R, holdover: !noHold, los_clear: clear, result: s.hit, impact_offset_m: miss, ...s });
@@ -171,12 +172,13 @@ async function v2(api, params, out) {
   for (const mode of ["down", "up"]) {
     game.player.rounds = 5; game.player.bolt = 0;
     await tickUntil(game, () => game.mark.target.seated && game.mark.wait > 4, 60);
-    aw.gusty = false; aw.angle = mode === "down" ? 0 : 1.35;
+    aw.forced = mode === "down" ? 0 : 1.35;
+    game.bellT = 15;
     const tgt = game.mark.target;
     const s = await shootAt(game, () => tgt.chest());
     res.shots.push({ awning: mode, result: s.hit, ...s });
     if (tgt.dead) { tgt.dead = false; tgt.down = 0; }
-    aw.gusty = true;
+    aw.forced = null;
   }
   const by = (f) => res.shots.find(f);
   res.pass = by((s) => s.range === 60 && s.holdover).result === "testtarget"
@@ -203,9 +205,11 @@ async function v3(api, params, out) {
     for (let attempt = 0; attempt < 5 && !game.mark.target.dead && game.state === "play"; attempt++) {
       const ready = () => {
         const m = game.mark, t = m.target;
-        if (m.wait < 1.2 || !game.ringing || game.bellPhase() > 4.5) return false;
+        if (m.wait < 1.2 || !game.ringing || game.bellPhase() > 6.5) return false;
         if (c.awning && game.awning.angle < 1.25) return false;
-        return game.losClear(eye(), t.chest());
+        if (!game.losClear(eye(), t.chest())) return false;
+        const first = game.hitTest(eye(), t.chest()); // nobody else may stand in the line of fire
+        return !!first && first.kind === "target";
       };
       P.crouch = true; P.scoped = true; P.zoom = 10;
       const ok = await tickUntil(game, ready, 240, () => ({ hold: false }));
@@ -252,7 +256,6 @@ async function bench(api, params, out) {
   P.scoped = true; P.zoom = 10;
   const ft = [];
   let t = 0;
-  const loadS = api.firstFrameAt / 1000;
   api.setTest({
     step(dt) {
       t += dt;
@@ -271,7 +274,7 @@ async function bench(api, params, out) {
         const avg = ft.reduce((a, b) => a + b, 0) / ft.length;
         out(params.get("name") || "bench", { ua: navigator.userAgent, frames: ft.length, avg_fps: +(1000 / avg).toFixed(1),
           p95_ms: +s[Math.floor(s.length * 0.95)].toFixed(2), p95_fps: +(1000 / s[Math.floor(s.length * 0.95)]).toFixed(1),
-          min_fps: +(1000 / s[s.length - 1]).toFixed(1), load_s: +loadS.toFixed(2), grid_ms: +api.gridMs.toFixed(0), collision_tris: api.tris,
+          min_fps: +(1000 / s[s.length - 1]).toFixed(1), load_s: +(api.firstFrameAt / 1000).toFixed(2), grid_ms: +api.gridMs.toFixed(0), collision_tris: api.tris,
           draw_calls: renderer.info.render.calls, tris: renderer.info.render.triangles, dpr: renderer.getPixelRatio(),
           viewport: [innerWidth, innerHeight], canvas: [renderer.domElement.width, renderer.domElement.height], scoped: P.zoom + "x" });
       }
@@ -284,6 +287,7 @@ async function shot(api, params, out) {
   const { game, lq, camera, playerCamera, syncVisuals, hud, drawScope } = api;
   const view = params.get("view");
   api.begin(1);
+  document.getElementById("toast").style.display = "none";
   game.bellT = 18;
   for (let i = 0; i < 600; i++) game.tick(DT, {}); // let the crowd spread out and the target reach the bridge end
   const P = game.player;

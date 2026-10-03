@@ -7,7 +7,7 @@ import { Awning } from "./awning.js";
 import { contracts } from "./contracts.js";
 
 export const EYE = 1.7, EYE_CROUCH = 1.25, RADIUS = 0.3, STEP = 0.45, DROP = 0.6;
-export const BELL = { period: 45, ring: 6, first: 14 };
+export const BELL = { period: 45, ring: 8, first: 14 };
 const HEIGHTS = [0.35, 0.9, 1.5];
 
 export class Game {

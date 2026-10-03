@@ -11,6 +11,7 @@ export class Awning {
   // Gust cycle: down ~7 s, rise 0.8 s, up ~3 s, fall 0.8 s (period varies a little per cycle).
   update(dt) {
     this.t += dt;
+    if (this.forced != null) { this.angle = this.forced; return; }
     if (!this.gusty) { this.angle = 0; return; }
     const P = 12, ph = this.t % P;
     const up = 1.35;

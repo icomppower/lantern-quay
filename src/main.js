@@ -13,7 +13,7 @@ const show = (id) => { for (const s of document.querySelectorAll(".screen")) s.c
 // ------------------------------------------------------------------ renderer + world
 const canvas = $("gl");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-renderer.setPixelRatio(Math.min(devicePixelRatio, params.has("dpr") ? Number(params.get("dpr")) : 1.5));
+renderer.setPixelRatio(params.get("dpr") === "1080p" ? 1920 / innerWidth : Math.min(devicePixelRatio, params.has("dpr") ? Number(params.get("dpr")) : 1.5));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.AgXToneMapping;
@@ -232,7 +232,7 @@ function syncVisuals(dt) {
   people.update(all, game.watch);
   awning.rotation.z = -game.awning.angle;
   const ph = game.bellPhase();
-  bell.rotation.x = ph < 6 ? Math.sin(ph * 5.5) * 0.45 * (1 - ph / 6) : 0;
+  bell.rotation.x = ph < 8 ? Math.sin(ph * 5.5) * 0.45 * (1 - ph / 8) : 0;
   tracers.sync(game.bullets);
   tracers.update(dt);
   for (const e of game.events) {
@@ -264,7 +264,7 @@ function frame() {
     playerCamera(P);
     syncVisuals(dt);
     hud(P);
-    if (P.scoped) drawScope(P, game.rangeAtCrosshair());
+    if (P.scoped) { const r = game.rangeAtCrosshair(); drawScope(P, r); $("range").textContent = r ? r.toFixed(0) + " m" : "– m"; }
     if (game.state === "over") setTimeout(finish, 900), (mode = "ending");
   } else if (mode === "ending") {
     game.mark.update(dt); game.crowd.update(dt); syncVisuals(dt);

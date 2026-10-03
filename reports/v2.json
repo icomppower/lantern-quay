@@ -1,0 +1,97 @@
+{
+ "shots": [
+  {
+   "range": 60,
+   "holdover": {
+    "range": 60,
+    "dropMil": 0,
+    "driftMil": -1.09,
+    "crossWind": -3.72
+   },
+   "los_clear": true,
+   "result": "testtarget",
+   "impact_offset_m": 0.25,
+   "fired": true,
+   "hit": "testtarget",
+   "tof": 0.2,
+   "impact": [
+    59.118,
+    13.65,
+    -7.489
+   ]
+  },
+  {
+   "range": 120,
+   "holdover": {
+    "range": 120,
+    "dropMil": 3.92,
+    "driftMil": -2.31,
+    "crossWind": -3.72
+   },
+   "los_clear": true,
+   "result": "testtarget",
+   "impact_offset_m": 0.25,
+   "fired": true,
+   "hit": "testtarget",
+   "tof": 0.437,
+   "impact": [
+    -0.664,
+    10.032,
+    -3.866
+   ]
+  },
+  {
+   "range": 120,
+   "holdover": null,
+   "los_clear": true,
+   "result": "none",
+   "impact_offset_m": 157.026,
+   "fired": true,
+   "hit": "none",
+   "tof": 1.3,
+   "impact": [
+    -156.815,
+    -5.019,
+    7.348
+   ]
+  },
+  {
+   "awning": "down",
+   "result": "awning",
+   "fired": true,
+   "hit": "awning",
+   "tof": 0.229,
+   "holdover": {
+    "range": 70.8,
+    "dropMil": 0.63,
+    "driftMil": -1.25,
+    "crossWind": -3.58
+   },
+   "impact": [
+    53.2,
+    2.154,
+    -1.425
+   ]
+  },
+  {
+   "awning": "up",
+   "result": "target",
+   "fired": true,
+   "hit": "target",
+   "tof": 0.242,
+   "holdover": {
+    "range": 70.8,
+    "dropMil": 0.63,
+    "driftMil": -1.25,
+    "crossWind": -3.58
+   },
+   "impact": [
+    50.593,
+    1.593,
+    -1.123
+   ]
+  }
+ ],
+ "pass": true,
+ "note": "120 m without holdover is informational: it should miss low/downwind."
+}
